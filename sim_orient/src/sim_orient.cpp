@@ -9,7 +9,7 @@
 #include <iostream>
 using namespace std;
 
-int main() {
+int simort() {
 	cout << "Accept the struggle!" << endl; // prints Accept the struggle!
 	return 0;
 }
