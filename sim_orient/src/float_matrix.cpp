@@ -27,7 +27,7 @@ public:
 		float sa=sin(ang);
 		x = {ca+(1-ca)*ax[0]*ax[0], (1-ca)*ax[0]*ax[1]-sa*ax[2], (1-ca)*ax[0]*ax[2]+sa*ax[1]};
 		y = {(1-ca)*ax[1]*ax[0]+sa*ax[2], ca+(1-ca)*ax[1]*ax[1], (1-ca)*ax[1]*ax[2]-sa*ax[0]};
-		z = {(1-ca)*ax[2]*ax[0]+sa*ax[1], (1-ca)*ax[2]*ax[1]+sa*ax[0], ca+(1-ca)*ax[2]*ax[2]};
+		z = {(1-ca)*ax[2]*ax[0]-sa*ax[1], (1-ca)*ax[2]*ax[1]+sa*ax[0], ca+(1-ca)*ax[2]*ax[2]};
 		matrix = {x,y,z};
 	}
 
@@ -51,15 +51,13 @@ private:
 };
 
 RotationMatrix operator*(RotationMatrix& A, RotationMatrix& B){
-	float x;
 	RotationMatrix R;
-	for(size_t i=0; i<2; i++){
-		for (size_t j=0; j<2; j++){
-			x=0;
-			for(size_t k=0; k<2; k++){
-				x+=A[i][k];
+	for(size_t i=0; i<3; i++){
+		for (size_t j=0; j<3; j++){
+			R[i][j]=0;
+			for(size_t k=0; k<3; k++){
+				R[i][j]+=A[i][k]*B[k][j];
 			}
-			R[i][j]=x;
 		}
 	}
 	return R;
@@ -82,47 +80,28 @@ ostream& operator<<(ostream& out, const vector<float>& v){
 	return out;
 }
 
-vector<float> Rotate (vector<float> v, char axis, float ang){
-	vector<float> nv=v;
-	float angle = ang*deg_to_rad;
-	switch (axis) {
-	case 'X':
-		nv[1]=v[1]*cos(angle)-v[2]*sin(angle);
-		nv[2]=v[2]*cos(angle)+v[1]*sin(angle);
-		break;
-	case 'Y':
-		nv[0]=v[2]*sin(angle)-v[0]*cos(angle);
-		nv[2]=v[2]*cos(angle)-v[0]*sin(angle);
-		break;
-	case 'Z':
-		nv[0]=v[0]*cos(angle)-v[1]*sin(angle);
-		nv[1]=v[1]*cos(angle)+v[0]*sin(angle);
-		break;
-	}
-	return nv;
-}
-
 vector<float> RotateAround(const vector<float> v, vector<float> axis, float ang){
 	RotationMatrix M = RotationMatrix(axis, ang);
 	return M.Apply(v);
 }
 
 int main (){
-	vector<float> test = {1,2,1};
+	vector<float> test = {0,0,1};
 	vector<float> ox = {1,0,0};
 	vector<float> oy = {0,1,0};
 	vector<float> oz = {0,0,1};
 
 	//TEST1 - умножение матриц (из симулятора)
-	float p = 0.6;
-	float k = 0.2;
-	float t = 0.8;
-	RotationMatrix X({{1,0,0},{0,cos(p),sin(p)},{0,-sin(p),cos(p)}});
-	RotationMatrix Y({{cos(k),0,-sin(k)},{0,1,0},{sin(k),0,cos(k)}});
-	RotationMatrix Z({{cos(t),sin(t),0},{-sin(t),cos(t),0},{0,0,1}});
+	float p = 65*deg_to_rad;
+	float k = 32.5*deg_to_rad;
+	float t = 32.5*deg_to_rad;
+
+	RotationMatrix X({{1,0,0},{0,cos(p),-sin(p)},{0,sin(p),cos(p)}});
+	RotationMatrix Y({{cos(k),0,sin(k)},{0,1,0},{-sin(k),0,cos(k)}});
+	RotationMatrix Z({{cos(t),-sin(t),0},{sin(t),cos(t),0},{0,0,1}});
 	RotationMatrix M=X*Y;
-	M=Z*M;
-	vector<float> test1 = M.Apply(test);
+	RotationMatrix R=Z*M;
+	vector<float> test1 = R.Apply(test);
 
 	//TEST2 - вращение вокруг осей ССК
 	vector<float> test2 = RotateAround(test, oy, k);
@@ -133,22 +112,41 @@ int main (){
 	vector<float> nox = ox;
 	vector<float> noy = oy;
 	vector<float> noz = oz;
-	vector<float> test3;
-
-	test3 = RotateAround(test, oy, k);
-	nox = RotateAround(nox, noy, k);
-	noz = RotateAround(noz, noy, k);
+	vector<float> test3 = test;
 
 	test3 = RotateAround(test3, nox, p);
-	noy = RotateAround(noy, nox, k);
-	noz = RotateAround(noz, nox, k);
+	noy = RotateAround(noy, nox, p);
+	noz = RotateAround(noz, nox, p);
+
+//	test3 = RotateAround(test3, noy, k);
+//	nox = RotateAround(nox, noy, k);
+//	noz = RotateAround(noz, noy, k);
 
 	test3 = RotateAround(test3, noz, t);
-	nox = RotateAround(nox, noz, k);
-	noy = RotateAround(noy, noz, k);
+	nox = RotateAround(nox, noz, t);
+	noy = RotateAround(noy, noz, t);
 
-	cout << test1 << endl;
-	cout << test2 << endl;
-	cout << test3 << endl;
+//	cout << test1 << endl;
+//	cout << test2 << endl;
+//	cout << test3 << endl;
+
+//	RotationMatrix A({{1,0,0},{0,1,2},{0,2,1}});
+//	RotationMatrix B({{3,0,1},{0,1,0},{1,0,2}});
+//	cout << A*B << endl;
+
+//	vector<float> VF = RotateAround(test, oy, k);
+//	VF = RotateAround(VF, ox, p);
+//	VF = RotateAround(VF, oz, t);
+//	cout << VF;
+
+	vector<float> simtest, postest;
+	simtest = RotateAround(test, ox, 69*deg_to_rad);
+	simtest = RotateAround(simtest, oy, -35*deg_to_rad);
+
+	postest = test3;
+
+	cout << simtest << endl;
+	cout << postest << endl;
+
 	return 0;
 }
