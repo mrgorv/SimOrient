@@ -10,6 +10,8 @@
 #include <cmath>
 using namespace std;
 
+#define VOUT(x) cout << #x << ": " << x << "\n";
+
 const float rad_to_deg = 57.2958;
 const float deg_to_rad = 1/57.2958;
 
@@ -86,22 +88,22 @@ vector<float> RotateAround(const vector<float> v, vector<float> axis, float ang)
 }
 
 int main (){
-	vector<float> test = {0,0,1};
+	vector<float> test = {0,1,0};
 	vector<float> ox = {1,0,0};
 	vector<float> oy = {0,1,0};
 	vector<float> oz = {0,0,1};
 
 	//TEST1 - умножение матриц (из симулятора)
-	float p = 65*deg_to_rad;
-	float k = 32.5*deg_to_rad;
-	float t = 32.5*deg_to_rad;
+	float p = -25*deg_to_rad;
+	float k = -32.5*deg_to_rad;
+	float t = 0*deg_to_rad;
 
 	RotationMatrix X({{1,0,0},{0,cos(p),-sin(p)},{0,sin(p),cos(p)}});
 	RotationMatrix Y({{cos(k),0,sin(k)},{0,1,0},{-sin(k),0,cos(k)}});
 	RotationMatrix Z({{cos(t),-sin(t),0},{sin(t),cos(t),0},{0,0,1}});
 	RotationMatrix M=X*Y;
 	RotationMatrix R=Z*M;
-	vector<float> test1 = R.Apply(test);
+	vector<float> test1 = R.Apply(oz);
 
 	//TEST2 - вращение вокруг осей ССК
 	vector<float> test2 = RotateAround(test, oy, k);
@@ -109,18 +111,24 @@ int main (){
 	test2 = RotateAround(test2, oz, t);
 
 	//TEST3 - вращение вокруг осей ПСК
+	p = 65*deg_to_rad;
+	k = 0*deg_to_rad;
+	t = 32.5*deg_to_rad;
+
 	vector<float> nox = ox;
 	vector<float> noy = oy;
 	vector<float> noz = oz;
-	vector<float> test3 = test;
+	vector<float> test3 = {0,1,0};
 
 	test3 = RotateAround(test3, nox, p);
 	noy = RotateAround(noy, nox, p);
 	noz = RotateAround(noz, nox, p);
+//	VOUT(test3)
+//	VOUT(noz)
 
-//	test3 = RotateAround(test3, noy, k);
-//	nox = RotateAround(nox, noy, k);
-//	noz = RotateAround(noz, noy, k);
+	test3 = RotateAround(test3, noy, k);
+	nox = RotateAround(nox, noy, k);
+	noz = RotateAround(noz, noy, k);
 
 	test3 = RotateAround(test3, noz, t);
 	nox = RotateAround(nox, noz, t);
@@ -139,14 +147,16 @@ int main (){
 //	VF = RotateAround(VF, oz, t);
 //	cout << VF;
 
-	vector<float> simtest, postest;
-	simtest = RotateAround(test, ox, 69*deg_to_rad);
-	simtest = RotateAround(simtest, oy, -35*deg_to_rad);
+	vector<float> simtest = oz, postest;
+	simtest = RotateAround(simtest, oy, -32.5*deg_to_rad);
+	simtest = RotateAround(simtest, ox, -25*deg_to_rad);
+//	simtest = RotateAround(simtest, oy, -32.5*deg_to_rad);
 
 	postest = test3;
 
-	cout << simtest << endl;
-	cout << postest << endl;
+	cout << "Должно быть: " << postest << endl;
+	cout << "Получается:  " << simtest << endl;
+	cout << "Симулятор:   " << test1 << endl;
 
 	return 0;
 }
