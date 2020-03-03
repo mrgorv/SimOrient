@@ -2,7 +2,7 @@
  * float_matrix.cpp
  *
  *  Created on: 10 февр. 2020 г.
- *      Author: Александр
+ *      Author: Egor Savelyev
  */
 
 #include <iostream>
@@ -87,13 +87,13 @@ vector<float> RotateAround(const vector<float> v, vector<float> axis, float ang)
 	return M.Apply(v);
 }
 
-int main (){
-	vector<float> test = {0,1,0};
+void RotateTests(){
 	vector<float> ox = {1,0,0};
 	vector<float> oy = {0,1,0};
 	vector<float> oz = {0,0,1};
 
 	//TEST1 - умножение матриц (из симулятора)
+	vector<float> test1 = {0,0,1};
 	float p = -25*deg_to_rad;
 	float k = -32.5*deg_to_rad;
 	float t = 0*deg_to_rad;
@@ -103,10 +103,11 @@ int main (){
 	RotationMatrix Z({{cos(t),-sin(t),0},{sin(t),cos(t),0},{0,0,1}});
 	RotationMatrix M=X*Y;
 	RotationMatrix R=Z*M;
-	vector<float> test1 = R.Apply(oz);
+	test1 = R.Apply(test1);
 
 	//TEST2 - вращение вокруг осей ССК
-	vector<float> test2 = RotateAround(test, oy, k);
+	vector<float> test2 = {0,0,1};
+	test2 = RotateAround(test2, oy, k);
 	test2 = RotateAround(test2, ox, p);
 	test2 = RotateAround(test2, oz, t);
 
@@ -123,8 +124,6 @@ int main (){
 	test3 = RotateAround(test3, nox, p);
 	noy = RotateAround(noy, nox, p);
 	noz = RotateAround(noz, nox, p);
-//	VOUT(test3)
-//	VOUT(noz)
 
 	test3 = RotateAround(test3, noy, k);
 	nox = RotateAround(nox, noy, k);
@@ -134,29 +133,12 @@ int main (){
 	nox = RotateAround(nox, noz, t);
 	noy = RotateAround(noy, noz, t);
 
-//	cout << test1 << endl;
-//	cout << test2 << endl;
-//	cout << test3 << endl;
+	cout << "Expecting: " << test3 << endl;
+	cout << "Returning: " << test2 << endl;
+	cout << "Simulator: " << test1 << endl;
+}
 
-//	RotationMatrix A({{1,0,0},{0,1,2},{0,2,1}});
-//	RotationMatrix B({{3,0,1},{0,1,0},{1,0,2}});
-//	cout << A*B << endl;
-
-//	vector<float> VF = RotateAround(test, oy, k);
-//	VF = RotateAround(VF, ox, p);
-//	VF = RotateAround(VF, oz, t);
-//	cout << VF;
-
-	vector<float> simtest = oz, postest;
-	simtest = RotateAround(simtest, oy, -32.5*deg_to_rad);
-	simtest = RotateAround(simtest, ox, -25*deg_to_rad);
-//	simtest = RotateAround(simtest, oy, -32.5*deg_to_rad);
-
-	postest = test3;
-
-	cout << "Должно быть: " << postest << endl;
-	cout << "Получается:  " << simtest << endl;
-	cout << "Симулятор:   " << test1 << endl;
-
+int main (){
+	RotateTests();
 	return 0;
 }
