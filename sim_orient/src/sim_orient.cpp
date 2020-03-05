@@ -2,7 +2,7 @@
 // Name        : sim_orient.cpp
 // Author      : Gorv
 // Version     :
-// Copyright   : C++ Tutorial
+// Copyright   : None
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
