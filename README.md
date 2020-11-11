@@ -1,2 +1,2 @@
-# SimOrient
-Mathematical base for space orientation system simulation.
+# Space Satellite Orientation Imitator
+<empty>
