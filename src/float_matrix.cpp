@@ -1,10 +1,3 @@
-/*
- * float_matrix.cpp
- *
- *  Created on: 10 Feb 2020
- *      Author: Egor Savelyev
- */
-
 #include <iostream>
 #include <vector>
 #include <cmath>

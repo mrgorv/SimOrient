@@ -1,13 +1,6 @@
-//============================================================================
-// Name        : plus_things.cpp
-// Author      : Gorv
-// Version     :
-// Copyright   : None
-// Description : Hello World in C++, Ansi-style
-//============================================================================
-
 #include <iostream>
 #include <vector>
+#include <string>
 using namespace std;
 
 struct OrientDescMatrix{
@@ -45,7 +38,7 @@ OrientDescMatrix operator*(OrientDescMatrix& A, OrientDescMatrix& B){
 				string b=B.matrix[k][j];
 				if (!s.empty() && a!="0" && b!="0")	s+='+';
 
-				if (a=="0" || b=="0"); // @suppress("Suspicious semicolon")
+				if (a=="0" || b=="0");
 				else if (a=="1"){
 					s+=b;
 				}
@@ -96,7 +89,7 @@ int main_desc() {
 	OrientDescMatrix F=X*Y;
 	F=Z*F;
 	F=F*V;
-	cout << F; // prints Accept the struggle!
+	cout << F;
 	cout << endl;
 	V = RotateDescPointer('X',V);
 	V = RotateDescPointer('Y',V);

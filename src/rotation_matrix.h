@@ -2,14 +2,14 @@
 #define ROTATION_MATRIX_H_
 
 #include <vector>
+using std::vector;
 
 class RotationMatrix{
 public:
-	RotationMatrix(){
-		matrix={{1,0,0},{0,1,0},{0,0,1}};
-	}
+	RotationMatrix();
+	RotationMatrix(vector<vector<float>> m);
 private:
-	std::vector<std::vector<float>> matrix;
+	vector<vector<float>> matrix;
 };
 
 
