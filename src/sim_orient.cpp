@@ -1,40 +1,99 @@
-//============================================================================
-// Name        : sim_orient.cpp
-// Author      : Gorv
-// Version     :
-// Copyright   : None
-// Description : Hello World in C++, Ansi-style
-//============================================================================
-
 #include <iostream>
 #include <vector>
+#include <array>
 #include <cmath>
 using namespace std;
 
-const float rad_to_deg = 57.2958;
-const float deg_to_rad = 1/57.2958;
+/*
+Объявления классов
+*/
 
-vector<float> Rotate (vector<float> v, char axis, float ang){
-	vector<float> nv=v;
-	float angle = ang*deg_to_rad;
-	switch (axis) {
-	case 'X':
-		nv[1]=v[1]*cos(angle)-v[2]*sin(angle);
-		nv[2]=v[2]*cos(angle)+v[1]*sin(angle);
-		break;
-	case 'Y':
-		nv[0]=v[2]*sin(angle)-v[0]*cos(angle);
-		nv[2]=v[2]*cos(angle)-v[0]*sin(angle);
-		break;
-	case 'Z':
-		nv[0]=v[0]*cos(angle)-v[1]*sin(angle);
-		nv[1]=v[1]*cos(angle)+v[0]*sin(angle);
-		break;
+using vector3D = array<double, 3>;
+
+namespace Integrate
+{
+	double Euler(double y, double dy, double dt)
+	{
+		return y + dy * dt;
 	}
-	return nv;
+
+	template <typename Container>
+	Container Euler(Container y, double dy, double dt)
+	{
+		Container y_next = y;
+		for (size_t i = 0, i < y.size(), ++i)
+			y_next[i] = y[i] + dy * dt;
+		return y_next;
+	}
 }
 
-int simort() {
-	cout << "Accept the struggle!" << endl; // prints Accept the struggle!
-	return 0;
+class Integrable
+{
+public:
+	virtual void Integrate() = 0;
+	Integrable& SetStep(double step);
+
+protected:
+	double integ_step;
+};
+
+class Solid : public Integrable
+{
+public:
+	Solid();
+	void Integrate() override;
+	void AddOscillator(Integrable *osc);
+
+private:
+	vector3D ang_velocity;
+	vector3D ang_accel;
+	vector3D ext_moment;
+	std::vector<Integrable*> connected_parts;
+};
+
+class Oscillator : public Integrable
+{
+public:
+	Oscillator();
+	void Integrate() override;
+	array<double, 3> GetMoment();
+private:
+	vector3D coeffs = {0, 0, 0};
+	vector3D moment = {0, 0, 0};
+};
+
+/*
+Реализации методов
+*/
+
+Solid::Solid()
+{
+}
+
+void Solid::Integrate()
+{
+	ang_accel = ext_moment;
+	ang_velocity = Integrate::Euler(ang_velocity, ang_accel, integ_step);
+}
+
+double Solid::GetOmegaMag()
+{
+	return omega_x * omega_x + omega_y * omega_y + omega_z * omega_z;
+}
+
+void Solid::AddOscillator(Integrable *osc)
+{
+	connected_parts.push_back(osc);
+}
+
+int main()
+{
+	float time = 0;
+	Solid body;
+	body.SetStep(0.1);
+
+	while (time < 5)
+	{
+		body.Integrate();
+	}
 }
