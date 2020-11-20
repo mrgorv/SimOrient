@@ -57,7 +57,6 @@ class Solid : public Integrable
 public:
 	Solid() = default;
 	void Integrate() override;
-	void SetAcceleration(vector3D accel);
 	Solid& AddMomentSource(MomentSource* msc);
 	vector3D GetVelocity();
 	vector3D GetAcceleration();
@@ -78,11 +77,11 @@ public:
 
 private:
 	const double frequency = 0;
-	const double dissip = 0.4;
+	const double dissip = 0.5;
 	double coordinate = 1;
 	double velocity = 0;
 	double accel = 0;
-	vector3D coeffs = {1, 1, 1};
+	vector3D coeffs = {0.5, 0.5, 0.5};
 	vector3D moment = {0, 0, 0};
 };
 
@@ -111,7 +110,6 @@ Solid& Solid::AddMomentSource(MomentSource *msc)
 	return *this;
 }
 
-void Solid::SetAcceleration(vector3D accel) {ang_accel = accel;}
 vector3D Solid::GetAcceleration() {return ang_accel;}
 vector3D Solid::GetVelocity() {return ang_velocity;}
 
@@ -122,8 +120,8 @@ void Oscillator::Integrate()
 	 vector3D backlash;
 	 if (static_cast<Solid*>(target)) backlash = static_cast<Solid*>(target)->GetAcceleration();
 	 accel = -dissip*velocity - frequency*frequency*coordinate + (backlash[0]*coeffs[0] + backlash[1]*coeffs[1] + backlash[2]*coeffs[2]);
-	 coordinate = Integrate::Euler(coordinate, velocity, integ_step);
 	 velocity = Integrate::Euler(velocity, accel, integ_step);
+	 coordinate = Integrate::Euler(coordinate, velocity, integ_step);	 
 	 for (size_t i = 0; i < 3; ++i) moment[i] = -accel*coeffs[i];
 }
 
@@ -142,7 +140,6 @@ int main()
 	objects.push_back(&body);
 	for (Integrable* ptr : objects) ptr->SetStep(0.1);
 	float time = 0;
-	body.SetAcceleration({1, 0, 0.5});
 
 	do
 	{
